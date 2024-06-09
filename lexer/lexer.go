@@ -85,8 +85,6 @@ func (l *Lexer) readIdentifier() string {
 }
 
 func isLetter(char byte) bool {
-	fmt.Printf("%c", char)
-	fmt.Println()
 	return 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z' || char == '_'
 }
 
