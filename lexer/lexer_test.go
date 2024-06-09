@@ -6,18 +6,53 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `=+(){},;`
+	input := `let nine = 9;
+	let six = 6;
+	let add = fn(x, y) {
+		x + y;
+	};
+	
+	let result = add(nine, six);
+	`
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
+		{token.LET, "let"},
+		{token.IDENT, "nine"},
 		{token.ASSIGN, "="},
-		{token.PLUS, "+"},
+		{token.INT, "9"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "six"},
+		{token.ASSIGN, "="},
+		{token.INT, "6"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "add"},
+		{token.ASSIGN, "="},
+		{token.FUNCTION, "fn"},
 		{token.LPAREN, "("},
+		{token.IDENT, "x"},
+		{token.COMMA, ","},
+		{token.IDENT, "y"},
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
+		{token.IDENT, "x"},
+		{token.PLUS, "+"},
+		{token.IDENT, "y"},
+		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "result"},
+		{token.ASSIGN, "="},
+		{token.IDENT, "add"},
+		{token.LPAREN, "("},
+		{token.IDENT, "nine"},
 		{token.COMMA, ","},
+		{token.IDENT, "six"},
+		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
@@ -34,4 +69,6 @@ func TestNextToken(t *testing.T) {
 				i, tt.expectedLiteral, tok.Literal)
 		}
 	}
+
+
 }
