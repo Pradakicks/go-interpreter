@@ -37,11 +37,11 @@ func (l *Lexer) NextToken() token.Token {
 	l.skipWhitespace()
 	switch l.char {
 	case '=':
-		tok = newToken(token.ASSIGN, l.char)
+		tok = l.makeTwoCharToken('=', token.EQUAL, token.ASSIGN)
 	case '-':
 		tok = newToken(token.MINUS, l.char)
 	case '!':
-		tok = newToken(token.BANG, l.char)
+		tok = l.makeTwoCharToken('=', token.NOT_EQUAL, token.BANG)
 	case '*':
 		tok = newToken(token.ASTERISK, l.char)
 	case '/':
@@ -64,7 +64,7 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, l.char)
 	case '}':
 		tok = newToken(token.RBRACE, l.char)
-	
+
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -115,4 +115,30 @@ func (l *Lexer) skipWhitespace() {
 	for l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r' {
 		l.readChar()
 	}
+}
+
+// returns next char
+// enables us to peek at the next char w/o changing our position
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
+}
+
+// nextChar is the character we are looking for next.
+// tokenType is the two-character token we are trying to form.
+// currentTokenType is the type of the current character.
+// If nextChar is not found, we return currentTokenType.
+func (l *Lexer) makeTwoCharToken(nextChar byte, tokenType token.TokenType, currentTokenType token.TokenType) token.Token {
+	var tok token.Token
+	if l.peekChar() == nextChar {
+		char := l.char
+		l.readChar()
+		tok = token.Token{Type: tokenType, Literal: string(char) + string(l.char)}
+	} else {
+		tok = newToken(currentTokenType, l.char)
+	}
+	return tok
 }
