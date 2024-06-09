@@ -1,6 +1,10 @@
 package lexer
 
-import "github.com/go-interpreter/token"
+import (
+	"fmt"
+
+	"github.com/go-interpreter/token"
+)
 
 type Lexer struct {
 	input        string
@@ -32,7 +36,7 @@ func newToken(tokenType token.TokenType, char byte) token.Token {
 
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
-
+	l.skipWhitespace()
 	switch l.char {
 	case '=':
 		tok = newToken(token.ASSIGN, l.char)
@@ -56,7 +60,7 @@ func (l *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(l.char) {
 			tok.Literal = l.readIdentifier()
-			tok.Type = token.LookupIdent(tok.Literal)	
+			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, l.char)
@@ -68,7 +72,7 @@ func (l *Lexer) NextToken() token.Token {
 
 // reads identifer and updates position
 // stops at non-letter-character
-func(l *Lexer) readIdentifier() string {
+func (l *Lexer) readIdentifier() string {
 	position := l.position
 	for isLetter(l.char) {
 		l.readChar()
@@ -77,5 +81,13 @@ func(l *Lexer) readIdentifier() string {
 }
 
 func isLetter(char byte) bool {
+	fmt.Printf("%c", char)
+	fmt.Println()
 	return 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z' || char == '_'
+}
+
+func (l *Lexer) skipWhitespace() {
+	for l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r'{
+		l.readChar()
+	}
 }
