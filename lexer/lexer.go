@@ -1,8 +1,6 @@
 package lexer
 
 import (
-	"fmt"
-
 	"github.com/go-interpreter/token"
 )
 
@@ -40,6 +38,18 @@ func (l *Lexer) NextToken() token.Token {
 	switch l.char {
 	case '=':
 		tok = newToken(token.ASSIGN, l.char)
+	case '-':
+		tok = newToken(token.MINUS, l.char)
+	case '!':
+		tok = newToken(token.BANG, l.char)
+	case '*':
+		tok = newToken(token.ASTERISK, l.char)
+	case '/':
+		tok = newToken(token.SLASH, l.char)
+	case '<':
+		tok = newToken(token.LT, l.char)
+	case '>':
+		tok = newToken(token.GT, l.char)
 	case ';':
 		tok = newToken(token.SEMICOLON, l.char)
 	case '(':
@@ -54,6 +64,7 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, l.char)
 	case '}':
 		tok = newToken(token.RBRACE, l.char)
+	
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
