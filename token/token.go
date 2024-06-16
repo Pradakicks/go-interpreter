@@ -7,6 +7,7 @@ type Token struct {
 	Literal string
 }
 
+// Token Types
 const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
@@ -24,7 +25,7 @@ const (
 	LT = "<"
 	GT = ">"
 
-	EQUAL = "=="
+	EQUAL     = "=="
 	NOT_EQUAL = "!="
 	// Delimiters
 	COMMA     = ","
