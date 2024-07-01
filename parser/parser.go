@@ -8,10 +8,22 @@ import (
 	"github.com/go-interpreter/token"
 )
 
+const (
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // > OR <
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -X or !X
+	CALL        // myFunction(X)
+)
+
 type (
 	prefixParseFn func() ast.Expression
-	infixParseFn func(ast.Expression) ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
 )
+
 type Parser struct {
 	l *lexer.Lexer
 
@@ -21,7 +33,7 @@ type Parser struct {
 	errors []string
 
 	prefixParseFns map[token.TokenType]prefixParseFn
-	infixParseFns map[token.TokenType]infixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -34,6 +46,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.nextToken()
 	p.nextToken()
 
+	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	return p
 }
 
@@ -73,9 +87,9 @@ func (p *Parser) parseStatements() ast.Statement {
 	case token.LET:
 		return p.parseLetStatement()
 	case token.RETURN:
-		return p.parseReturnStatements()
+		return p.parseReturnStatement()
 	default:
-		return nil
+		return p.parseExpressionStatement()
 	}
 }
 
@@ -102,8 +116,8 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	return statement
 }
 
-// Parse a return statement 
-func(p *Parser) parseReturnStatements() *ast.ReturnStatement {
+// Parse a return statement
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	statement := &ast.ReturnStatement{Token: p.curToken}
 
 	p.nextToken()
@@ -116,6 +130,33 @@ func(p *Parser) parseReturnStatements() *ast.ReturnStatement {
 	}
 
 	return statement
+}
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	statement := &ast.ExpressionStatement{Token: p.curToken}
+
+	statement.Expression = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixParseFns[p.curToken.Type]
+	if prefix == nil {
+		return nil
+	}
+
+	leftExpression := prefix()
+
+	return leftExpression
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 // Check if current token is of a certain token.TokenType (t)
@@ -140,10 +181,10 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 	}
 }
 
-func(p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 	p.prefixParseFns[tokenType] = fn
 }
 
-func(p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn){
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
 }
