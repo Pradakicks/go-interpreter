@@ -9,7 +9,6 @@ type Lexer struct {
 	position     int  // current position in input (points to current char)
 	readPosition int  // current reading position in input (after current char)
 	char         byte // current char under examination
-
 }
 
 func (l *Lexer) readChar() {

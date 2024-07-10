@@ -22,4 +22,3 @@ type PrefixExpression struct {
  Right    Expression
  Token    token.Token // The prefix token, e.g !
 }
-
