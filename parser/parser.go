@@ -29,6 +29,7 @@ var precedences = map[token.TokenType]int{
 	token.MINUS:     SUM,
 	token.SLASH:     PRODUCT,
 	token.ASTERISK:  PRODUCT,
+	token.LPAREN:    CALL,
 }
 
 type (
@@ -124,39 +125,29 @@ func (p *Parser) parseStatement() ast.Statement {
 // Parse a let statement
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	statement := &ast.LetStatement{Token: p.curToken}
-
 	if !p.expectPeek(token.IDENT) {
 		return nil
 	}
-
 	statement.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-
 	if !p.expectPeek(token.ASSIGN) {
 		return nil
 	}
-
-	// TODO(Pradakicks): We're skipping the expressions until
-	// we encounter a semicolon
-	for !p.curTokenIs(token.SEMICOLON) {
+	p.nextToken()
+	statement.Value = p.parseExpression(LOWEST)
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
-
 	return statement
 }
 
 // Parse a return statement
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	statement := &ast.ReturnStatement{Token: p.curToken}
-
 	p.nextToken()
-
-	// TODO(Pradakicks): We're skipping the expression until we
-	// encounter a semicolon
-
-	for !p.curTokenIs(token.SEMICOLON) {
+	statement.ReturnValue = p.parseExpression(LOWEST)
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
-
 	return statement
 }
 
@@ -283,9 +274,9 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	block.Statements = []ast.Statement{}
 	p.nextToken()
 	for !p.curTokenIs(token.RBRACE) && !p.curTokenIs(token.EOF) {
-		stmt := p.parseStatement()
-		if stmt != nil {
-			block.Statements = append(block.Statements, stmt)
+		statement := p.parseStatement()
+		if statement != nil {
+			block.Statements = append(block.Statements, statement)
 		}
 		p.nextToken()
 	}
