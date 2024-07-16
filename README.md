@@ -33,3 +33,6 @@ type PrefixExpression struct {
 
 TODO(Pradakicks): Look into other implementations for evaluation.
 Example: JIT, AST -> Bytecode, ect
+
+TODO(Pradakicks): Add stack trace to error handling
+Example: JIT, AST -> Bytecode, ect
