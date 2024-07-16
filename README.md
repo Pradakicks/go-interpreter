@@ -7,18 +7,29 @@ Resources:
 reference prefixParseFn implementation parser/parser.go
  -->
 
-TODO(Pradakicks): modify structs so that it efficently uses memory and then run benchmarks and document results
+TODO(Pradakicks): modify structs so that it efficiently uses memory
+and then run benchmarks and document results
 <https://medium.com/@sebassegros/golang-dealing-with-maligned-structs-9b77bacf4b97>
 Example:
 Current:
+
+```
 type PrefixExpression struct {
  Token    token.Token // The prefix token, e.g !
  Operator string
  Right    Expression
 }
+```
+
 Optimized:
+
+```
 type PrefixExpression struct {
  Operator string
  Right    Expression
  Token    token.Token // The prefix token, e.g !
 }
+```
+
+TODO(Pradakicks): Look into other implementations for evaluation.
+Example: JIT, AST -> Bytecode, ect
